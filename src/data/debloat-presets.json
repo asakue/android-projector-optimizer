@@ -1,0 +1,122 @@
+[
+  {
+    "id": "com.master.tv.market",
+    "name": "Projector App Market",
+    "category": "store",
+    "risk": "safe",
+    "description": "Китайский предустановленный магазин с рекламой и устаревшими APK.",
+    "recommended": true
+  },
+  {
+    "id": "com.define.shellservice",
+    "name": "Background Shell Service",
+    "category": "telemetry",
+    "risk": "safe",
+    "description": "Фоновый сервис телеметрии и автозагрузки китайских баннеров.",
+    "recommended": true
+  },
+  {
+    "id": "com.google.android.katniss",
+    "name": "Google TV Assistant / Search",
+    "category": "bloatware",
+    "risk": "safe",
+    "description": "Голосовой поиск Google TV. Постоянно держит в ОЗУ до 150-250 МБ фоновых процессов.",
+    "recommended": true
+  },
+  {
+    "id": "com.android.chrome",
+    "name": "Google Chrome",
+    "category": "bloatware",
+    "risk": "safe",
+    "description": "Тяжелый десктопный браузер, вызывающий Out-of-Memory на 1-2 ГБ ОЗУ. Рекомендуется заменить на TV-Bro.",
+    "recommended": true
+  },
+  {
+    "id": "com.jm.jmlauncher",
+    "name": "JM Stock Launcher",
+    "category": "launcher",
+    "risk": "caution",
+    "description": "Стоковый лаунчер с китайской рекламой. Отключайте ТОЛЬКО после установки альтернативного (FLauncher / Projector Launcher).",
+    "recommended": false
+  },
+  {
+    "id": "com.master.apps",
+    "name": "Master Apps Center",
+    "category": "bloatware",
+    "risk": "safe",
+    "description": "Центр приложений с фоновыми опросами серверов обновлений.",
+    "recommended": true
+  },
+  {
+    "id": "com.dangbei.dbmarket",
+    "name": "Dangbei Market",
+    "category": "store",
+    "risk": "safe",
+    "description": "Азиатский сторонний маркет со спам-уведомлениями.",
+    "recommended": true
+  },
+  {
+    "id": "com.shafa.market",
+    "name": "Shafa TV Store",
+    "category": "store",
+    "risk": "safe",
+    "description": "Неиспользуемый китайский магазин софта.",
+    "recommended": true
+  },
+  {
+    "id": "com.hpplay.happyplay.aw",
+    "name": "HappyCast Background Service",
+    "category": "telemetry",
+    "risk": "safe",
+    "description": "Фоновая служба трансляций, рассылающая широковещательные пакеты в сеть.",
+    "recommended": true
+  },
+  {
+    "id": "com.droidlogic.ad",
+    "name": "Amlogic Ad Daemon",
+    "category": "adware",
+    "risk": "safe",
+    "description": "Демон показа рекламы при загрузке системы Amlogic.",
+    "recommended": true
+  },
+  {
+    "id": "com.toptech.factorytools",
+    "name": "Factory Calibration Tools",
+    "category": "bloatware",
+    "risk": "safe",
+    "description": "Заводские тесты дисплея и датчиков, оставленные сборщиками прошивки.",
+    "recommended": true
+  },
+  {
+    "id": "com.droidlogic.appinstall",
+    "name": "Silent App Auto-Installer",
+    "category": "adware",
+    "risk": "safe",
+    "description": "Фоновый установщик спонсорских приложений без спроса пользователя.",
+    "recommended": true
+  },
+  {
+    "id": "com.tianci.user",
+    "name": "Tianci Cloud Analytics",
+    "category": "telemetry",
+    "risk": "safe",
+    "description": "Служба сбора статистики просмотров и кликов.",
+    "recommended": true
+  },
+  {
+    "id": "com.android.vending",
+    "name": "Google Play Store",
+    "category": "store",
+    "risk": "caution",
+    "description": "Официальный магазин Google Play. На слабых проекторах забирает до 200 МБ ОЗУ на фоновые проверки.",
+    "recommended": false
+  },
+  {
+    "id": "com.google.android.gms",
+    "name": "Google Play Services",
+    "category": "bloatware",
+    "risk": "unsafe",
+    "description": "Сервисы Google. Отключение может нарушить работу приложений, зависящих от авторизации Google.",
+    "recommended": false
+  }
+]

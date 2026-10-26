@@ -1,0 +1,54 @@
+{
+  "name": "android-projector-optimizer",
+  "version": "1.0.0",
+  "description": "Android Projector Optimizer - Next-Gen Android Projector Debloater & Optimizer",
+  "main": "src/main/main.cjs",
+  "scripts": {
+    "start": "electron src/main/main.cjs",
+    "dev": "electron src/main/main.cjs",
+    "build:portable": "electron-builder --win portable"
+  },
+  "build": {
+    "appId": "com.androidprojector.optimizer",
+    "productName": "Android Projector Optimizer",
+    "directories": {
+      "output": "dist-package"
+    },
+    "files": [
+      "src/**/*",
+      "index.html",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "platform-tools",
+        "to": "platform-tools"
+      }
+    ],
+    "win": {
+      "target": "portable"
+    },
+    "portable": {
+      "artifactName": "AndroidProjectorOptimizer.exe"
+    }
+  },
+  "keywords": [
+    "android",
+    "projector",
+    "optimizer",
+    "debloater",
+    "adb",
+    "magcubic",
+    "hy300",
+    "hy320",
+    "wanbo"
+  ],
+  "author": "Antigravity & Gurzi",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8",
+    "typescript": "^5.6.3",
+    "vite": "^6.0.1"
+  }
+}

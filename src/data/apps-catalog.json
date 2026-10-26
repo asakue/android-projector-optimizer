@@ -1,0 +1,67 @@
+[
+  {
+    "id": "tv-bro",
+    "name": "TV-Bro Browser",
+    "category": "Браузеры",
+    "version": "v2.1.6",
+    "icon": "globe",
+    "description": "Сверхлегкий браузер специально для Android TV и проекторов. Встроенный блокировщик рекламы, навигация пультом, потребляет всего ~40 МБ ОЗУ (в 10 раз меньше Chrome).",
+    "size": "11 MB",
+    "packageName": "com.phlox.tvwebbrowser",
+    "downloadUrl": "https://github.com/truefedex/tv-bro/releases/download/v2.1.6/tvbro-2.1.6-generic-geckoExcluded.apk",
+    "githubUrl": "https://github.com/truefedex/tv-bro",
+    "recommended": true
+  },
+  {
+    "id": "smarttube",
+    "name": "SmartTube (No Ads)",
+    "category": "Видео & Стриминг",
+    "version": "Stable v32.68",
+    "icon": "play-circle",
+    "description": "Лучший клиент YouTube для телевизоров и проекторов: без рекламы, пропуск спонсорских интеграций (SponsorBlock), поддержка 4K, 60fps и фоновое воспроизведение.",
+    "size": "25 MB",
+    "packageName": "com.teamsmart.videomanager.tv",
+    "downloadUrl": "https://github.com/yuliskov/SmartTube/releases/download/32.68s/SmartTube_stable_32.68_armeabi-v7a.apk",
+    "githubUrl": "https://github.com/yuliskov/SmartTube",
+    "recommended": true
+  },
+  {
+    "id": "flauncher",
+    "name": "FLauncher",
+    "category": "Лаунчеры",
+    "version": "v2025.07",
+    "icon": "layout-grid",
+    "description": "Открытый, красивый и быстрый лаунчер для Android TV. Без рекламы, баннеров и китайских служб. Позволяет скрыть мусор и кастомизировать категории приложений.",
+    "size": "14 MB",
+    "packageName": "me.efesser.flauncher",
+    "downloadUrl": "https://github.com/osrosal/flauncher/releases/download/v2025.07.001/flauncher-universal-release.apk",
+    "githubUrl": "https://github.com/osrosal/flauncher",
+    "recommended": true
+  },
+  {
+    "id": "nova-player",
+    "name": "Nova Video Player",
+    "category": "Видеоплееры",
+    "version": "v6.5.5",
+    "icon": "film",
+    "description": "Плеер с идеальным аппаратным декодированием видео на процессорах Amlogic, Rockchip и Allwinner. Автоматически подтягивает постеры к фильмам с флешек и локальной сети (SMB/NFS).",
+    "size": "28 MB",
+    "packageName": "org.courville.nova",
+    "downloadUrl": "https://github.com/nova-video-player/aos-AVP/releases/download/v6.5.5/org.courville.nova-2672099-6.5.5-20261009.2113-armeabi-v7a-release.apk",
+    "githubUrl": "https://github.com/nova-video-player/aos-AVP",
+    "recommended": true
+  },
+  {
+    "id": "aptoide-tv",
+    "name": "Aptoide TV Store",
+    "category": "Магазины",
+    "version": "v5.1.3",
+    "icon": "shopping-bag",
+    "description": "Специальный каталог приложений для телевизоров и проекторов. Позволяет скачивать любые стриминговые сервисы (Кинопоиск, Иви, Wink) без аккаунта Google.",
+    "size": "12 MB",
+    "packageName": "cm.aptoidetv.pt",
+    "downloadUrl": "https://pool.apk.aptoide.com/carolyne-silva/cm-aptoidetv-pt-542-72049303-6212d8ef0991eaf05b32f8f0141dadb8.apk",
+    "githubUrl": "https://tv.aptoide.com",
+    "recommended": false
+  }
+]

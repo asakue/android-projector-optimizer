@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Production build outputs (upload to GitHub Releases instead!)
+dist/
+dist-package/
+
+# Temporary and generated screenshots/logs
+*.log
+*.png
+*.zip
+*.apk
+.temp/
+
+# OS metadata
+Thumbs.db
+.DS_Store
