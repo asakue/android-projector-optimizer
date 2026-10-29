@@ -1,9 +1,10 @@
-const { app, BrowserWindow, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const https = require('https');
 const http = require('http');
 const AdbManager = require('../core/adb.cjs');
+const { scanLocalAdbDevices } = require('../core/discovery.cjs');
 const { isValidIp, isValidPort, isPackageProtected, isSafeDownloadUrl } = require('../core/security.cjs');
 
 const debloatPresets = require('../data/debloat-presets.json');
@@ -348,3 +349,80 @@ ipcMain.handle('shell:open-external', async (_, url) => {
     return await shell.openExternal(url);
   }
 });
+
+// Network Auto-Discovery (Port 5555 Scan)
+ipcMain.handle('adb:scan-network', async (event) => {
+  return await scanLocalAdbDevices((percent, currentIp, found) => {
+    if (!mainWindow || mainWindow.isDestroyed()) return;
+    mainWindow.webContents.send('adb:scan-progress', { percent, currentIp, found });
+  });
+});
+
+// Screen Density (DPI)
+ipcMain.handle('adb:get-density', async (_, serial) => {
+  return await adb.getDisplayDensity(serial);
+});
+
+ipcMain.handle('adb:set-density', async (_, { serial, density }) => {
+  return await adb.setDisplayDensity(serial, density);
+});
+
+// Quick Hardware & System Settings Intents
+ipcMain.handle('adb:open-bluetooth', async (_, serial) => {
+  return await adb.openBluetoothSettings(serial);
+});
+
+ipcMain.handle('adb:open-sound', async (_, serial) => {
+  return await adb.openSoundSettings(serial);
+});
+
+ipcMain.handle('adb:open-display', async (_, serial) => {
+  return await adb.openDisplaySettings(serial);
+});
+
+// APK Backup & Export
+ipcMain.handle('dialog:select-directory', async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    title: 'Выберите папку для сохранения APK бэкапов',
+    properties: ['openDirectory', 'createDirectory']
+  });
+  if (result.canceled || !result.filePaths || result.filePaths.length === 0) {
+    return null;
+  }
+  return result.filePaths[0];
+});
+
+ipcMain.handle('adb:export-apk', async (_, { serial, packageName, destDir }) => {
+  return await adb.exportApk(serial, packageName, destDir);
+});
+
+ipcMain.handle('adb:batch-export-apks', async (event, { serial, packageNames, destDir }) => {
+  return await adb.batchExportApks(serial, packageNames, destDir, (progress) => {
+    if (!mainWindow || mainWindow.isDestroyed()) return;
+    mainWindow.webContents.send('adb:export-progress', progress);
+  });
+});
+
+// Save Optimization Report to File
+ipcMain.handle('dialog:save-report', async (_, { content, defaultName }) => {
+  const result = await dialog.showSaveDialog(mainWindow, {
+    title: 'Сохранить отчет об оптимизации',
+    defaultPath: defaultName || 'Projector_Optimization_Report.md',
+    filters: [
+      { name: 'Markdown Документ (*.md)', extensions: ['md'] },
+      { name: 'Текстовый документ (*.txt)', extensions: ['txt'] }
+    ]
+  });
+
+  if (result.canceled || !result.filePath) {
+    return { success: false, canceled: true };
+  }
+
+  try {
+    fs.writeFileSync(result.filePath, content, 'utf8');
+    return { success: true, filePath: result.filePath };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+

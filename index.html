@@ -13,32 +13,32 @@
       <div class="brand-header">
         <div class="brand-logo" id="brand-logo-icon"></div>
         <div class="brand-info">
-          <h1 style="font-size: 13px;">Projector Optimizer</h1>
-          <span>Android v1.0</span>
+          <h1 style="font-size: 13px;" data-i18n="brand.title">Projector Optimizer</h1>
+          <span data-i18n="brand.version">Android v1.1</span>
         </div>
       </div>
 
       <nav class="nav-menu">
         <a class="nav-item active" data-view="dashboard">
           <span class="nav-icon" id="icon-nav-dashboard"></span>
-          <span>Дашборд</span>
+          <span data-i18n="nav.dashboard">Дашборд</span>
         </a>
         <a class="nav-item" data-view="debloater">
           <span class="nav-icon" id="icon-nav-debloater"></span>
-          <span>Очистка мусора</span>
+          <span data-i18n="nav.debloater">Очистка мусора</span>
           <span class="nav-badge" id="debloat-badge">0</span>
         </a>
         <a class="nav-item" data-view="turbo">
           <span class="nav-icon" id="icon-nav-turbo"></span>
-          <span>Турбо-ускорение</span>
+          <span data-i18n="nav.turbo">Турбо-ускорение</span>
         </a>
         <a class="nav-item" data-view="apps">
           <span class="nav-icon" id="icon-nav-apps"></span>
-          <span>Каталог TV-приложений</span>
+          <span data-i18n="nav.apps">Каталог TV-приложений</span>
         </a>
         <a class="nav-item" data-view="remote">
           <span class="nav-icon" id="icon-nav-remote"></span>
-          <span>Экран & Пульт</span>
+          <span data-i18n="nav.remote">Экран & Пульт</span>
         </a>
       </nav>
 
@@ -47,12 +47,12 @@
           <div class="connection-status-row">
             <div class="status-indicator">
               <span class="status-dot" id="device-status-dot"></span>
-              <span id="device-status-text">Ожидание...</span>
+              <span id="device-status-text" data-i18n="conn.waiting">Ожидание...</span>
             </div>
-            <button class="btn-icon-xs" id="btn-refresh-devices" title="Обновить список устройств"></button>
+            <button class="btn-icon-xs" id="btn-refresh-devices" data-i18n-title="conn.refresh_tooltip" title="Обновить список устройств"></button>
           </div>
-          <div class="device-quick-name" id="device-quick-name">Проектор не найден</div>
-          <div class="device-quick-ip" id="device-quick-serial">Подключите USB или Wi-Fi</div>
+          <div class="device-quick-name" id="device-quick-name" data-i18n="conn.no_device">Проектор не найден</div>
+          <div class="device-quick-ip" id="device-quick-serial" data-i18n="conn.connect_hint">Подключите USB или Wi-Fi</div>
         </div>
       </div>
     </aside>
@@ -63,16 +63,21 @@
       <header class="top-bar">
         <div class="top-bar-title" id="page-title">
           <span id="topbar-icon"></span>
-          <span id="topbar-text">Дашборд и телеметрия</span>
+          <span id="topbar-text" data-i18n="topbar.dashboard">Дашборд и телеметрия</span>
         </div>
         <div class="top-bar-actions">
+          <!-- Language Toggle Button -->
+          <button class="btn btn-secondary lang-toggle-btn" id="btn-toggle-lang" title="Switch Language / Сменить язык">
+            <span id="icon-btn-lang"></span>
+            <span id="lang-indicator">RU</span>
+          </button>
           <button class="btn btn-secondary" id="btn-open-wifi-modal">
             <span id="icon-btn-wifi"></span>
-            <span>Подключить по Wi-Fi</span>
+            <span data-i18n="topbar.btn_wifi">Подключить по Wi-Fi</span>
           </button>
           <button class="btn btn-secondary" id="btn-reboot-device">
             <span id="icon-btn-reboot"></span>
-            <span>Перезагрузить</span>
+            <span data-i18n="topbar.btn_reboot">Перезагрузить</span>
           </button>
         </div>
       </header>
@@ -82,20 +87,26 @@
         <!-- Hero Optimization Banner -->
         <div class="hero-banner">
           <div class="hero-content">
-            <h2>Оптимизация проектора в 1 клик</h2>
-            <p>Ускорение анимаций в 2 раза, заморозка рекламного мусора, очистка кэшей и dexopt-компиляция медиа-приложений без риска для прошивки.</p>
+            <h2 data-i18n="hero.title">Оптимизация проектора в 1 клик</h2>
+            <p data-i18n="hero.desc">Ускорение анимаций в 2 раза, заморозка рекламного мусора, очистка кэшей и dexopt-компиляция медиа-приложений без риска для прошивки.</p>
           </div>
-          <button class="btn btn-primary" id="btn-hero-quick-boost" style="padding: 10px 20px; font-size: 13px;">
-            <span id="icon-btn-boost"></span>
-            <span>Турбо-оптимизация</span>
-          </button>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button class="btn btn-secondary" id="btn-dashboard-report" style="padding: 10px 16px; font-size: 13px;">
+              <span id="icon-btn-report"></span>
+              <span data-i18n="hero.btn_report">Экспорт отчёта</span>
+            </button>
+            <button class="btn btn-primary" id="btn-hero-quick-boost" style="padding: 10px 20px; font-size: 13px;">
+              <span id="icon-btn-boost"></span>
+              <span data-i18n="hero.btn_boost">Турбо-оптимизация</span>
+            </button>
+          </div>
         </div>
 
         <!-- KPI Telemetry Cards -->
         <div class="grid-cols-4">
           <div class="card">
             <div class="card-header">
-              <span class="card-title">Оперативная память</span>
+              <span class="card-title" data-i18n="kpi.ram">Оперативная память</span>
               <span id="icon-kpi-ram"></span>
             </div>
             <div class="metric-value" id="kpi-ram-val">-- / -- MB</div>
@@ -109,7 +120,7 @@
 
           <div class="card">
             <div class="card-header">
-              <span class="card-title">Внутренняя память</span>
+              <span class="card-title" data-i18n="kpi.storage">Внутренняя память</span>
               <span id="icon-kpi-storage"></span>
             </div>
             <div class="metric-value" id="kpi-storage-val">-- / --</div>
@@ -123,7 +134,7 @@
 
           <div class="card">
             <div class="card-header">
-              <span class="card-title">Чипсет & Экран</span>
+              <span class="card-title" data-i18n="kpi.soc">Чипсет & Экран</span>
               <span id="icon-kpi-cpu"></span>
             </div>
             <div class="metric-value" id="kpi-soc-val" style="font-size: 20px;">--</div>
@@ -134,7 +145,7 @@
 
           <div class="card">
             <div class="card-header">
-              <span class="card-title">Чистота системы</span>
+              <span class="card-title" data-i18n="kpi.cleanliness">Чистота системы</span>
               <span id="icon-kpi-shield"></span>
             </div>
             <div class="metric-value" id="kpi-bloat-val" style="color: var(--accent-green);">--</div>
@@ -144,22 +155,44 @@
           </div>
         </div>
 
+        <!-- Quick System Settings Bar -->
+        <div class="card" style="margin-bottom: 20px;">
+          <div class="card-header">
+            <span class="card-title" data-i18n="quick.title">Быстрые системные настройки проектора</span>
+            <span id="icon-quick-settings"></span>
+          </div>
+          <div class="quick-settings-row">
+            <button class="btn btn-secondary quick-intent-btn" id="btn-open-bluetooth">
+              <span id="icon-btn-bt"></span>
+              <span data-i18n="quick.bluetooth">Bluetooth устройства</span>
+            </button>
+            <button class="btn btn-secondary quick-intent-btn" id="btn-open-sound">
+              <span id="icon-btn-sound"></span>
+              <span data-i18n="quick.sound">Настройки звука</span>
+            </button>
+            <button class="btn btn-secondary quick-intent-btn" id="btn-open-display">
+              <span id="icon-btn-display"></span>
+              <span data-i18n="quick.display">Дисплей и масштаб</span>
+            </button>
+          </div>
+        </div>
+
         <!-- Hardware Specs Card -->
         <div class="card">
           <div class="card-header">
-            <span class="card-title">Параметры подключенного оборудования</span>
+            <span class="card-title" data-i18n="specs.title">Параметры подключенного оборудования</span>
           </div>
           <div class="grid-cols-3" style="margin-bottom: 0;">
             <div>
-              <div class="card-subtitle">Модель устройства</div>
+              <div class="card-subtitle" data-i18n="specs.model">Модель устройства</div>
               <div style="font-weight: 600; font-size: 14px;" id="spec-model">--</div>
             </div>
             <div>
-              <div class="card-subtitle">Версия Android & SDK</div>
+              <div class="card-subtitle" data-i18n="specs.android">Версия Android & SDK</div>
               <div style="font-weight: 600; font-size: 14px;" id="spec-android">--</div>
             </div>
             <div>
-              <div class="card-subtitle">Производитель / Бренд</div>
+              <div class="card-subtitle" data-i18n="specs.brand">Производитель / Бренд</div>
               <div style="font-weight: 600; font-size: 14px;" id="spec-brand">--</div>
             </div>
           </div>
@@ -169,21 +202,25 @@
       <!-- View 2: Debloater -->
       <section class="content-view" id="view-debloater">
         <div class="table-toolbar">
-          <input type="text" class="search-input" id="debloat-search" placeholder="Поиск по названию или пакету...">
+          <input type="text" class="search-input" id="debloat-search" data-i18n-ph="debloater.search_ph" placeholder="Поиск по названию или пакету...">
           <div class="filter-tabs">
-            <button class="filter-btn active" data-filter="all">Все</button>
-            <button class="filter-btn" data-filter="recommended">Рекомендованные</button>
-            <button class="filter-btn" data-filter="disabled">Отключенные</button>
-            <button class="filter-btn" data-filter="third">Пользовательские</button>
+            <button class="filter-btn active" data-filter="all" data-i18n="debloater.filter_all">Все</button>
+            <button class="filter-btn" data-filter="recommended" data-i18n="debloater.filter_rec">Рекомендованные</button>
+            <button class="filter-btn" data-filter="disabled" data-i18n="debloater.filter_dis">Отключенные</button>
+            <button class="filter-btn" data-filter="third" data-i18n="debloater.filter_third">Пользовательские</button>
           </div>
           <div style="margin-left: auto; display: flex; gap: 8px;">
-            <button class="btn btn-secondary" id="btn-restore-all">Восстановить всё</button>
-            <button class="btn btn-amber" id="btn-debloat-selected">Заморозить мусор</button>
+            <button class="btn btn-secondary" id="btn-backup-all-apks" title="Сохранить установленные программы на ПК">
+              <span id="icon-btn-backup"></span>
+              <span data-i18n="debloater.btn_backup_apks">Бэкап всех APK</span>
+            </button>
+            <button class="btn btn-secondary" id="btn-restore-all" data-i18n="debloater.btn_restore_all">Восстановить всё</button>
+            <button class="btn btn-amber" id="btn-debloat-selected" data-i18n="debloater.btn_freeze_trash">Заморозить мусор</button>
           </div>
         </div>
 
         <div class="package-list" id="packages-container">
-          <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+          <div style="text-align: center; padding: 40px; color: var(--text-muted);" data-i18n="debloater.empty_hint">
             Подключите проектор для загрузки списка установленных приложений...
           </div>
         </div>
@@ -195,45 +232,69 @@
           <!-- Animation Tuning -->
           <div class="card">
             <div class="card-header">
-              <span class="card-title">Масштаб системных анимаций</span>
+              <span class="card-title" data-i18n="turbo.anim_title">Масштаб системных анимаций</span>
               <span id="icon-turbo-zap"></span>
             </div>
-            <p style="color: var(--text-secondary); margin-bottom: 16px;">
+            <p style="color: var(--text-secondary); margin-bottom: 16px;" data-i18n="turbo.anim_desc">
               По умолчанию Android использует медленные анимации переходов (1.0x). Ускорение делает проектор субъективно в 2-3 раза быстрее.
             </p>
             <div style="display: flex; gap: 8px;">
-              <button class="btn btn-secondary anim-btn" data-scale="0">0x (Отключить)</button>
-              <button class="btn btn-primary anim-btn" data-scale="0.5">0.5x (Рекомендуется)</button>
-              <button class="btn btn-secondary anim-btn" data-scale="1.0">1.0x (Стандарт)</button>
+              <button class="btn btn-secondary anim-btn" data-scale="0" data-i18n="turbo.anim_0">0x (Отключить)</button>
+              <button class="btn btn-primary anim-btn" data-scale="0.5" data-i18n="turbo.anim_05">0.5x (Рекомендуется)</button>
+              <button class="btn btn-secondary anim-btn" data-scale="1.0" data-i18n="turbo.anim_1">1.0x (Стандарт)</button>
             </div>
           </div>
 
           <!-- Dex2oat Speed Compile -->
           <div class="card">
             <div class="card-header">
-              <span class="card-title">AOT Speed-компиляция приложений</span>
+              <span class="card-title" data-i18n="turbo.dex_title">AOT Speed-компиляция приложений</span>
               <span id="icon-turbo-cpu"></span>
             </div>
-            <p style="color: var(--text-secondary); margin-bottom: 16px;">
+            <p style="color: var(--text-secondary); margin-bottom: 16px;" data-i18n="turbo.dex_desc">
               Компилирует байт-код популярных медиа-приложений в нативный машинный код чипсета. Полностью устраняет задержки запуска и дропы кадров.
             </p>
             <button class="btn btn-secondary" id="btn-compile-apps">
-              <span>Скомпилировать плееры и лаунчер</span>
+              <span data-i18n="turbo.btn_dex">Скомпилировать плееры и лаунчер</span>
             </button>
           </div>
         </div>
 
-        <!-- Cache & Junk cleaner -->
-        <div class="card">
+        <!-- Display Density (DPI) Tuning Card -->
+        <div class="card" style="margin-top: 20px;">
           <div class="card-header">
-            <span class="card-title">Глубокая очистка временных логов и кэшей</span>
+            <span class="card-title" data-i18n="turbo.density_title">Плотность экрана (DPI)</span>
+            <span id="icon-turbo-density"></span>
+          </div>
+          <p style="color: var(--text-secondary); margin-bottom: 14px;" data-i18n="turbo.density_desc">
+            Настройка плотности интерфейса. Меньший DPI делает интерфейс четче и компактнее, вмещая больше плиток приложений, как на премиальных ТВ-боксах.
+          </p>
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px;">
+            <span style="font-weight: 600; font-size: 13px;" id="current-density-label">Текущая плотность: -- DPI</span>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;">
+            <button class="btn btn-secondary density-preset-btn" data-density="240" data-i18n="turbo.density_compact">240 (Компактный)</button>
+            <button class="btn btn-primary density-preset-btn" data-density="280" data-i18n="turbo.density_balanced">280 (Рекомендуется)</button>
+            <button class="btn btn-secondary density-preset-btn" data-density="320" data-i18n="turbo.density_standard">320 (Стандартный)</button>
+            <button class="btn btn-secondary density-preset-btn" data-density="reset" data-i18n="turbo.density_reset">Сбросить (Заводской)</button>
+          </div>
+          <div style="display: flex; gap: 8px; max-width: 320px;">
+            <input type="number" class="search-input" id="custom-density-input" min="120" max="640" placeholder="120–640 DPI" style="width: 140px;">
+            <button class="btn btn-secondary" id="btn-apply-custom-density" data-i18n="turbo.density_apply">Применить DPI</button>
+          </div>
+        </div>
+
+        <!-- Cache & Junk cleaner -->
+        <div class="card" style="margin-top: 20px;">
+          <div class="card-header">
+            <span class="card-title" data-i18n="turbo.cache_title">Глубокая очистка временных логов и кэшей</span>
             <span id="icon-turbo-trash"></span>
           </div>
-          <p style="color: var(--text-secondary); margin-bottom: 16px;">
+          <p style="color: var(--text-secondary); margin-bottom: 16px;" data-i18n="turbo.cache_desc">
             Удаляет мусорные журналы крашей `/sdcard/Documents/log/*` и производит системную команду очистки тримминга кэша до 1000 МБ.
           </p>
           <button class="btn btn-secondary" id="btn-clean-cache">
-            <span>Очистить кэш и мусорные логи</span>
+            <span data-i18n="turbo.btn_cache">Очистить кэш и мусорные логи</span>
           </button>
         </div>
       </section>
@@ -249,17 +310,17 @@
           <!-- Screen Mirror Box -->
           <div class="screen-mirror-box">
             <div class="screen-mirror-header">
-              <span style="font-size: 12px; font-weight: 600;">Экран проектора в реальном времени</span>
+              <span style="font-size: 12px; font-weight: 600;" data-i18n="remote.mirror_title">Экран проектора в реальном времени</span>
               <div style="display: flex; gap: 8px;">
                 <button class="btn btn-secondary" id="btn-capture-frame" style="padding: 4px 10px; font-size: 11px;">
-                  Сделать снимок
+                  <span data-i18n="remote.btn_capture">Сделать снимок</span>
                 </button>
               </div>
             </div>
             <div class="screen-mirror-viewport" id="screen-viewport">
               <div class="screen-placeholder" id="screen-placeholder">
                 <span id="icon-screen-mirror"></span>
-                <span>Нажмите «Сделать снимок» для просмотра экрана</span>
+                <span data-i18n="remote.placeholder">Нажмите «Сделать снимок» для просмотра экрана</span>
               </div>
               <img id="screen-image" class="screen-mirror-img" style="display: none;" alt="Projector Display">
             </div>
@@ -268,7 +329,7 @@
           <!-- Tactile Remote Controller -->
           <div class="remote-panel">
             <div style="display: flex; justify-content: space-between; width: 100%;">
-              <span style="font-size: 12px; font-weight: 600;">Пульт управления</span>
+              <span style="font-size: 12px; font-weight: 600;" data-i18n="remote.panel_title">Пульт управления</span>
               <button class="remote-round-btn remote-power-btn" id="btn-remote-power" title="Питание">
                 <span id="icon-remote-power"></span>
               </button>
@@ -293,8 +354,8 @@
 
             <!-- Quick Text Input -->
             <div class="text-input-row">
-              <input type="text" class="search-input" id="remote-text-input" placeholder="Ввести текст на проекторе..." style="flex: 1;">
-              <button class="btn btn-secondary" id="btn-send-text">Ввод</button>
+              <input type="text" class="search-input" id="remote-text-input" data-i18n-ph="remote.text_ph" placeholder="Ввести текст на проекторе..." style="flex: 1;">
+              <button class="btn btn-secondary" id="btn-send-text" data-i18n="remote.btn_send">Ввод</button>
             </div>
           </div>
         </div>
@@ -302,31 +363,51 @@
     </main>
   </div>
 
-  <!-- Wi-Fi Connect Modal -->
+  <!-- Wi-Fi Connect Modal with Auto-Discovery -->
   <div class="modal-overlay" id="wifi-modal">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 style="font-size: 14px; font-weight: 600;">Беспроводное подключение ADB</h3>
+        <h3 style="font-size: 14px; font-weight: 600;" data-i18n="modal.wifi_title">Беспроводное подключение ADB</h3>
         <button class="btn-icon-xs" id="btn-close-wifi-modal">✕</button>
       </div>
       <div class="modal-body">
-        <p style="color: var(--text-secondary); font-size: 12px; margin-bottom: 14px;">
+        <p style="color: var(--text-secondary); font-size: 12px; margin-bottom: 14px;" data-i18n="modal.wifi_desc">
           Убедитесь, что проектор и компьютер находятся в одной Wi-Fi сети, и на проекторе включена «Отладка по USB / Сети» в настройках разработчика.
         </p>
+
+        <!-- Auto-Discovery Card -->
+        <div class="discovery-card" style="margin-bottom: 14px; padding: 12px; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 12px; font-weight: 600;">Автопоиск в локальной сети</span>
+            <button class="btn btn-secondary" id="btn-scan-network" style="font-size: 11px; padding: 5px 10px;">
+              <span id="icon-btn-scan"></span>
+              <span id="scan-btn-text" data-i18n="modal.wifi_scan_btn">🔍 Найти проектор в сети</span>
+            </button>
+          </div>
+          <div id="scan-progress-box" style="display: none; margin-top: 10px;">
+            <div class="progress-bar-container" style="height: 4px; margin-bottom: 4px;">
+              <div class="progress-bar-fill" id="scan-progress-bar" style="width: 0%;"></div>
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted);" id="scan-progress-text">Сканирование подсети...</div>
+          </div>
+          <div id="scan-results-box" style="display: none; margin-top: 10px; max-height: 120px; overflow-y: auto;"></div>
+        </div>
+
+        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">Ручной ввод IP-адреса проектора:</div>
         <div style="display: flex; gap: 8px;">
-          <input type="text" class="search-input" id="wifi-ip-input" placeholder="Например: 192.168.1.145" style="flex: 1;">
+          <input type="text" class="search-input" id="wifi-ip-input" data-i18n-ph="modal.wifi_ip_ph" placeholder="Например: 192.168.1.145" style="flex: 1;">
           <input type="text" class="search-input" id="wifi-port-input" value="5555" style="width: 70px;">
         </div>
         <div style="margin-top: 14px; padding: 10px; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
-          <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">Если проектор сейчас подключен кабелем USB:</div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;" data-i18n="modal.wifi_usb_hint">Если проектор сейчас подключен кабелем USB:</div>
           <button class="btn btn-secondary" id="btn-activate-tcpip" style="width: 100%; font-size: 11px; padding: 6px 10px;">
-            <span>Активировать режим Wi-Fi (adb tcpip 5555)</span>
+            <span data-i18n="modal.wifi_activate_tcpip">Активировать режим Wi-Fi (adb tcpip 5555)</span>
           </button>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" id="btn-cancel-wifi">Отмена</button>
-        <button class="btn btn-primary" id="btn-confirm-wifi">Подключить</button>
+        <button class="btn btn-secondary" id="btn-cancel-wifi" data-i18n="modal.wifi_cancel">Отмена</button>
+        <button class="btn btn-primary" id="btn-confirm-wifi" data-i18n="modal.wifi_connect">Подключить</button>
       </div>
     </div>
   </div>
@@ -335,21 +416,25 @@
   <div class="modal-overlay" id="results-modal">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 style="font-size: 14px; font-weight: 600;">Отчет об оптимизации</h3>
+        <h3 style="font-size: 14px; font-weight: 600;" data-i18n="results.title">Отчет об оптимизации</h3>
         <button class="btn-icon-xs" id="btn-close-results-modal">✕</button>
       </div>
       <div class="modal-body">
         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
           <div style="color: var(--accent-green);" id="icon-results-check"></div>
           <div>
-            <div style="font-weight: 700; font-size: 15px;">Турбо-оптимизация завершена!</div>
+            <div style="font-weight: 700; font-size: 15px;" data-i18n="results.heading">Турбо-оптимизация завершена!</div>
             <div style="font-size: 12px; color: var(--text-secondary);" id="results-ram-freed">Освобождено памяти: --</div>
           </div>
         </div>
-        <div id="results-steps-list" style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--text-ink);"></div>
+        <div id="results-steps-list" style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--text-ink); margin-bottom: 14px;"></div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-primary" id="btn-ack-results">Отлично</button>
+        <button class="btn btn-secondary" id="btn-save-report-modal">
+          <span id="icon-btn-report-modal"></span>
+          <span data-i18n="results.btn_save">Экспорт отчета в файл</span>
+        </button>
+        <button class="btn btn-primary" id="btn-ack-results" data-i18n="results.btn_ack">Отлично</button>
       </div>
     </div>
   </div>

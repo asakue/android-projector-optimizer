@@ -857,3 +857,62 @@ body {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
 }
+
+/* Language Toggle Button */
+.lang-toggle-btn {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  gap: 6px;
+  padding: 6px 12px;
+}
+.lang-toggle-btn #lang-indicator {
+  color: var(--accent-cyan);
+}
+
+/* Quick Settings Bar */
+.quick-settings-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.quick-intent-btn {
+  font-size: 12px;
+  padding: 8px 14px;
+  background: var(--bg-surface-elevated);
+}
+.quick-intent-btn:hover {
+  background: var(--bg-surface-active);
+  border-color: var(--border-strong);
+  color: var(--accent-cyan);
+}
+
+/* Density Tuning Buttons */
+.density-preset-btn {
+  font-size: 12px;
+  padding: 6px 14px;
+}
+
+/* Discovery Scan Results */
+.scan-candidate-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
+  transition: all 0.15s ease;
+}
+.scan-candidate-item:hover {
+  border-color: var(--accent-cyan);
+  background: rgba(0, 229, 255, 0.05);
+}
+.scan-candidate-ip {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-cyan);
+}
+

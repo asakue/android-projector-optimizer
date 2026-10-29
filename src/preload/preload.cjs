@@ -29,5 +29,36 @@ contextBridge.exposeInMainWorld('electronAPI', {
   batchOptimize: (serial, options) => ipcRenderer.invoke('adb:batch-optimize', { serial, options }),
   batchRestore: (serial) => ipcRenderer.invoke('adb:batch-restore', serial),
   
+  // Auto-Discovery
+  scanNetwork: () => ipcRenderer.invoke('adb:scan-network'),
+  onScanProgress: (callback) => {
+    const handler = (_, data) => callback(data);
+    ipcRenderer.on('adb:scan-progress', handler);
+    return () => ipcRenderer.removeListener('adb:scan-progress', handler);
+  },
+
+  // Screen Density (DPI)
+  getDisplayDensity: (serial) => ipcRenderer.invoke('adb:get-density', serial),
+  setDisplayDensity: (serial, density) => ipcRenderer.invoke('adb:set-density', { serial, density }),
+
+  // Quick Hardware Settings
+  openBluetoothSettings: (serial) => ipcRenderer.invoke('adb:open-bluetooth', serial),
+  openSoundSettings: (serial) => ipcRenderer.invoke('adb:open-sound', serial),
+  openDisplaySettings: (serial) => ipcRenderer.invoke('adb:open-display', serial),
+
+  // APK Backup & Export
+  selectDirectory: () => ipcRenderer.invoke('dialog:select-directory'),
+  exportApk: (serial, packageName, destDir) => ipcRenderer.invoke('adb:export-apk', { serial, packageName, destDir }),
+  batchExportApks: (serial, packageNames, destDir) => ipcRenderer.invoke('adb:batch-export-apks', { serial, packageNames, destDir }),
+  onExportProgress: (callback) => {
+    const handler = (_, data) => callback(data);
+    ipcRenderer.on('adb:export-progress', handler);
+    return () => ipcRenderer.removeListener('adb:export-progress', handler);
+  },
+
+  // Report Export
+  saveReport: (content, defaultName) => ipcRenderer.invoke('dialog:save-report', { content, defaultName }),
+
   openExternal: (url) => ipcRenderer.invoke('shell:open-external', url)
 });
+

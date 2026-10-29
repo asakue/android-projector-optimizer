@@ -429,6 +429,123 @@ class AdbManager {
     const args = serial ? ['-s', serial, 'reboot'] : ['reboot'];
     return await this.execAdb(args, 10000);
   }
+
+  async getDisplayDensity(serial) {
+    const prefix = serial ? ['-s', serial, 'shell'] : ['shell'];
+    const res = await this.execAdb([...prefix, 'wm', 'density'], 5000);
+    if (!res.success) return { current: 320, physical: 320, override: null, isCustom: false };
+
+    let physical = 320;
+    let override = null;
+
+    const physMatch = res.stdout.match(/Physical density:\s*(\d+)/i);
+    if (physMatch) physical = parseInt(physMatch[1], 10);
+
+    const overMatch = res.stdout.match(/Override density:\s*(\d+)/i);
+    if (overMatch) override = parseInt(overMatch[1], 10);
+
+    return {
+      physical,
+      override,
+      current: override || physical,
+      isCustom: override !== null && override !== physical
+    };
+  }
+
+  async setDisplayDensity(serial, density) {
+    const prefix = serial ? ['-s', serial, 'shell'] : ['shell'];
+    if (density === 'reset' || density === 0 || density === null) {
+      const res = await this.execAdb([...prefix, 'wm', 'density', 'reset'], 5000);
+      return { success: res.success, message: 'Плотность экрана сброшена на заводское значение' };
+    }
+
+    const d = parseInt(density, 10);
+    if (isNaN(d) || d < 120 || d > 640) {
+      return { success: false, error: 'Недопустимое значение DPI (разрешено от 120 до 640)' };
+    }
+
+    const res = await this.execAdb([...prefix, 'wm', 'density', d.toString()], 5000);
+    return { success: res.success, density: d, message: `Плотность экрана установлена на ${d} DPI` };
+  }
+
+  async openBluetoothSettings(serial) {
+    const prefix = serial ? ['-s', serial, 'shell'] : ['shell'];
+    return await this.execAdb([...prefix, 'am', 'start', '-a', 'android.settings.BLUETOOTH_SETTINGS'], 5000);
+  }
+
+  async openSoundSettings(serial) {
+    const prefix = serial ? ['-s', serial, 'shell'] : ['shell'];
+    return await this.execAdb([...prefix, 'am', 'start', '-a', 'android.settings.SOUND_SETTINGS'], 5000);
+  }
+
+  async openDisplaySettings(serial) {
+    const prefix = serial ? ['-s', serial, 'shell'] : ['shell'];
+    return await this.execAdb([...prefix, 'am', 'start', '-a', 'android.settings.DISPLAY_SETTINGS'], 5000);
+  }
+
+  async exportApk(serial, packageName, destDir) {
+    if (!fs.existsSync(destDir)) {
+      fs.mkdirSync(destDir, { recursive: true });
+    }
+
+    const prefix = serial ? ['-s', serial, 'shell'] : ['shell'];
+    const pathRes = await this.execAdb([...prefix, 'pm', 'path', packageName], 8000);
+    if (!pathRes.success || !pathRes.stdout) {
+      return { success: false, error: `Не удалось получить путь к APK: ${packageName}` };
+    }
+
+    const lines = pathRes.stdout.split('\n').map(l => l.replace('package:', '').trim()).filter(Boolean);
+    const remotePath = lines.find(l => l.endsWith('.apk')) || lines[0];
+
+    if (!remotePath) {
+      return { success: false, error: `APK файл для ${packageName} не найден на проекторе` };
+    }
+
+    const cleanPkg = packageName.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const localTarget = path.join(destDir, `${cleanPkg}.apk`);
+
+    const pullArgs = serial ? ['-s', serial, 'pull', remotePath, localTarget] : ['pull', remotePath, localTarget];
+    const pullRes = await this.execAdb(pullArgs, 60000);
+
+    const exists = fs.existsSync(localTarget) && fs.statSync(localTarget).size > 0;
+    return {
+      success: exists,
+      filePath: localTarget,
+      size: exists ? fs.statSync(localTarget).size : 0,
+      error: exists ? null : (pullRes.stderr || 'Ошибка выгрузки APK')
+    };
+  }
+
+  async batchExportApks(serial, packageNames, destDir, onProgress = null) {
+    if (!fs.existsSync(destDir)) {
+      fs.mkdirSync(destDir, { recursive: true });
+    }
+
+    const results = [];
+    const total = packageNames.length;
+
+    for (let i = 0; i < total; i++) {
+      const pkg = packageNames[i];
+      if (onProgress) {
+        const percent = Math.round((i / total) * 100);
+        onProgress({ current: i + 1, total, percent, packageName: pkg });
+      }
+
+      const res = await this.exportApk(serial, pkg, destDir);
+      results.push({ packageName: pkg, ...res });
+    }
+
+    if (onProgress) {
+      onProgress({ current: total, total, percent: 100, packageName: 'Done' });
+    }
+
+    return {
+      success: true,
+      exportedCount: results.filter(r => r.success).length,
+      destDir,
+      results
+    };
+  }
 }
 
 module.exports = AdbManager;

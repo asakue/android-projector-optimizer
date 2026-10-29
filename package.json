@@ -1,6 +1,6 @@
 {
   "name": "android-projector-optimizer",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Android Projector Optimizer - Next-Gen Android Projector Debloater & Optimizer",
   "main": "src/main/main.cjs",
   "scripts": {

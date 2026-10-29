@@ -1,4 +1,5 @@
 import { Icons } from './components/icons.js';
+import { initLanguage, getLang, setLang, t, applyTranslations } from './i18n.js';
 
 // Global Application State
 const state = {
@@ -7,6 +8,7 @@ const state = {
   deviceInfo: null,
   memoryStats: null,
   storageStats: null,
+  displayDensity: null,
   packages: [],
   appsCatalog: [],
   currentTab: 'dashboard',
@@ -14,7 +16,8 @@ const state = {
   searchQuery: '',
   isPolling: false,
   isOptimizing: false,
-  pollTimeoutId: null
+  pollTimeoutId: null,
+  lastOptimizationResult: null
 };
 
 // Initialize Optical SVG Icons
@@ -26,18 +29,27 @@ function initIcons() {
   document.getElementById('icon-nav-apps').innerHTML = Icons.download();
   document.getElementById('icon-nav-remote').innerHTML = Icons.remote();
 
+  document.getElementById('icon-btn-lang').innerHTML = Icons.languages();
   document.getElementById('btn-refresh-devices').innerHTML = Icons.refresh();
   document.getElementById('icon-btn-wifi').innerHTML = Icons.wifi();
   document.getElementById('icon-btn-reboot').innerHTML = Icons.power();
   document.getElementById('icon-btn-boost').innerHTML = Icons.zap();
+  document.getElementById('icon-btn-report').innerHTML = Icons.fileText();
+  document.getElementById('icon-btn-backup').innerHTML = Icons.archive();
 
   document.getElementById('icon-kpi-ram').innerHTML = Icons.cpu();
   document.getElementById('icon-kpi-storage').innerHTML = Icons.hardDrive();
   document.getElementById('icon-kpi-cpu').innerHTML = Icons.projector();
   document.getElementById('icon-kpi-shield').innerHTML = Icons.shieldCheck();
 
+  document.getElementById('icon-quick-settings').innerHTML = Icons.cpu();
+  document.getElementById('icon-btn-bt').innerHTML = Icons.bluetooth();
+  document.getElementById('icon-btn-sound').innerHTML = Icons.volume();
+  document.getElementById('icon-btn-display').innerHTML = Icons.monitor();
+
   document.getElementById('icon-turbo-zap').innerHTML = Icons.zap();
   document.getElementById('icon-turbo-cpu').innerHTML = Icons.cpu();
+  document.getElementById('icon-turbo-density').innerHTML = Icons.monitor();
   document.getElementById('icon-turbo-trash').innerHTML = Icons.shieldCheck();
 
   document.getElementById('icon-screen-mirror').innerHTML = Icons.projector();
@@ -49,10 +61,12 @@ function initIcons() {
   document.getElementById('btn-remote-back').innerHTML = Icons.back();
   document.getElementById('btn-remote-home').innerHTML = Icons.home();
 
+  document.getElementById('icon-btn-scan').innerHTML = Icons.search();
   document.getElementById('icon-results-check').innerHTML = Icons.check();
+  document.getElementById('icon-btn-report-modal').innerHTML = Icons.fileText();
 }
 
-// Leak-Free Polling Loop (replaces unbounded setInterval to prevent race conditions)
+// Leak-Free Polling Loop
 async function startAdaptivePolling() {
   if (state.pollTimeoutId) {
     clearTimeout(state.pollTimeoutId);
@@ -70,7 +84,7 @@ async function startAdaptivePolling() {
         state.isPolling = false;
       }
     }
-    // Schedule next poll adaptive interval (3.5s)
+    // Schedule next poll interval (3.5s)
     state.pollTimeoutId = setTimeout(poll, 3500);
   };
 
@@ -90,9 +104,9 @@ async function refreshDevices() {
   if (!devices || devices.length === 0) {
     state.currentDevice = null;
     dot.className = 'status-dot';
-    statusText.textContent = 'Отключено';
-    nameEl.textContent = 'Проектор не найден';
-    serialEl.textContent = 'Подключите USB или Wi-Fi';
+    statusText.textContent = t('conn.disconnected');
+    nameEl.textContent = t('conn.no_device');
+    serialEl.textContent = t('conn.connect_hint');
     return;
   }
 
@@ -102,7 +116,7 @@ async function refreshDevices() {
 
   if (primary.state === 'device') {
     dot.className = 'status-dot online';
-    statusText.textContent = 'Онлайн';
+    statusText.textContent = t('conn.online');
     nameEl.textContent = primary.model || 'Android Projector';
     serialEl.textContent = primary.isWifi ? `Wi-Fi (${primary.serial})` : `USB (${primary.serial})`;
 
@@ -113,14 +127,14 @@ async function refreshDevices() {
     }
   } else if (primary.state === 'unauthorized') {
     dot.className = 'status-dot connecting';
-    statusText.textContent = 'Подтвердите RSA';
-    nameEl.textContent = 'Внимание: экран проектора';
-    serialEl.textContent = 'Нажмите «Разрешить отладку» на проекторе';
+    statusText.textContent = 'RSA';
+    nameEl.textContent = t('conn.unauthorized_title');
+    serialEl.textContent = t('conn.unauthorized_hint');
   } else if (primary.state === 'offline') {
     dot.className = 'status-dot';
-    statusText.textContent = 'Устройство оффлайн';
+    statusText.textContent = t('conn.offline');
     nameEl.textContent = primary.model || 'Android Projector';
-    serialEl.textContent = 'Проверьте питание или переподключите';
+    serialEl.textContent = t('conn.offline_hint');
   } else {
     dot.className = 'status-dot connecting';
     statusText.textContent = primary.state;
@@ -135,24 +149,35 @@ async function loadDeviceDetails() {
   const serial = state.currentDevice.serial;
 
   try {
-    const [info, mem, storage, packages] = await Promise.all([
+    const [info, mem, storage, packages, density] = await Promise.all([
       window.electronAPI.getDeviceInfo(serial),
       window.electronAPI.getMemoryStats(serial),
       window.electronAPI.getStorageStats(serial),
-      window.electronAPI.getPackages(serial)
+      window.electronAPI.getPackages(serial),
+      window.electronAPI.getDisplayDensity(serial)
     ]);
 
     state.deviceInfo = info;
     state.memoryStats = mem;
     state.storageStats = storage;
     state.packages = packages;
+    state.displayDensity = density;
 
     // Update Specs Display
     document.getElementById('spec-model').textContent = info.model;
     document.getElementById('spec-android').textContent = `Android ${info.androidVersion} (API ${info.sdk})`;
     document.getElementById('spec-brand').textContent = `${info.manufacturer} / ${info.brand}`;
     document.getElementById('kpi-soc-val').textContent = info.soc.toUpperCase();
-    document.getElementById('kpi-res-val').textContent = `Экран: ${info.displaySize}`;
+    document.getElementById('kpi-res-val').textContent = t('kpi.resolution', { res: info.displaySize });
+
+    // Update Display Density indicator
+    if (density) {
+      const densityLabel = document.getElementById('current-density-label');
+      if (densityLabel) {
+        densityLabel.textContent = t('turbo.density_current', { val: density.current }) + 
+          (density.isCustom ? ` (Заводской: ${density.physical})` : '');
+      }
+    }
 
     // Update Telemetry
     updateLiveTelemetry();
@@ -160,7 +185,7 @@ async function loadDeviceDetails() {
     // Update Storage KPI
     if (storage) {
       document.getElementById('kpi-storage-val').textContent = `${storage.used} / ${storage.total}`;
-      document.getElementById('kpi-storage-free').textContent = `Свободно: ${storage.available}`;
+      document.getElementById('kpi-storage-free').textContent = t('kpi.storage_free', { free: storage.available });
       const percent = parseInt(storage.usePercent.replace('%', ''), 10) || 0;
       document.getElementById('storage-progress').style.width = `${percent}%`;
     }
@@ -179,7 +204,7 @@ async function updateLiveTelemetry() {
   state.memoryStats = mem;
 
   document.getElementById('kpi-ram-val').textContent = `${mem.usedMB} / ${mem.totalMB} MB`;
-  document.getElementById('kpi-ram-free').textContent = `Свободно: ${mem.availableMB} MB (Кэш: ${mem.cachedMB} MB)`;
+  document.getElementById('kpi-ram-free').textContent = t('kpi.ram_free', { free: mem.availableMB });
   const ramBar = document.getElementById('ram-progress');
   ramBar.style.width = `${mem.usagePercent}%`;
 
@@ -192,11 +217,11 @@ async function updateLiveTelemetry() {
   }
 }
 
-// Render Debloater List with Protected Whitelist Indicators
+// Render Debloater List
 function renderDebloaterPackages() {
   const container = document.getElementById('packages-container');
   if (!state.packages || state.packages.length === 0) {
-    container.innerHTML = `<div style="text-align: center; padding: 40px; color: var(--text-muted);">Приложения не найдены</div>`;
+    container.innerHTML = `<div style="text-align: center; padding: 40px; color: var(--text-muted);">${t('debloater.empty_hint')}</div>`;
     return;
   }
 
@@ -215,11 +240,11 @@ function renderDebloaterPackages() {
 
   const bloatCount = state.packages.filter(p => p.recommended && !p.isDisabled).length;
   document.getElementById('debloat-badge').textContent = bloatCount;
-  document.getElementById('kpi-bloat-val').textContent = bloatCount === 0 ? 'Чисто (0 мусора)' : `${bloatCount} к очистке`;
-  document.getElementById('kpi-bloat-meta').textContent = `Всего пакетов: ${state.packages.length}`;
+  document.getElementById('kpi-bloat-val').textContent = bloatCount === 0 ? '0' : `${bloatCount}`;
+  document.getElementById('kpi-bloat-meta').textContent = t('kpi.packages_found', { count: state.packages.length });
 
   if (filtered.length === 0) {
-    container.innerHTML = `<div style="text-align: center; padding: 40px; color: var(--text-muted);">Ничего не найдено по фильтрам</div>`;
+    container.innerHTML = `<div style="text-align: center; padding: 40px; color: var(--text-muted);">Ничего не найдено</div>`;
     return;
   }
 
@@ -229,17 +254,17 @@ function renderDebloaterPackages() {
 
     if (pkg.isProtected) {
       badgeClass = 'badge-safe';
-      badgeText = 'ЗАЩИЩЕНО СИСТЕМОЙ';
+      badgeText = t('debloater.badge_protected');
     } else if (pkg.isDisabled) {
       badgeClass = 'badge-disabled';
-      badgeText = 'ОТКЛЮЧЕНО';
+      badgeText = t('debloater.badge_disabled');
     } else if (pkg.risk === 'caution') {
       badgeClass = 'badge-caution';
       badgeText = 'ВНИМАНИЕ';
     }
 
-    const actionText = pkg.isDisabled ? 'Включить' : 'Отключить';
-    const isActionDisabled = pkg.isProtected ? 'disabled style="opacity: 0.4; cursor: not-allowed;" title="Этот системный компонент защищен от отключения для стабильности проектора"' : '';
+    const actionText = pkg.isDisabled ? t('debloater.btn_restore') : t('debloater.btn_freeze');
+    const isActionDisabled = pkg.isProtected ? 'disabled style="opacity: 0.4; cursor: not-allowed;" title="Этот системный компонент защищен от отключения"' : '';
 
     return `
       <div class="package-item" data-id="${pkg.id}">
@@ -252,9 +277,17 @@ function renderDebloaterPackages() {
           <span class="package-id">${pkg.id}</span>
           <span class="package-desc">${pkg.description || ''}</span>
         </div>
-        <button class="btn btn-secondary btn-toggle-pkg" data-pkg="${pkg.id}" data-enable="${pkg.isDisabled}" ${isActionDisabled}>
-          ${actionText}
-        </button>
+        <div style="display: flex; gap: 8px;">
+          ${pkg.isThirdParty ? `
+            <button class="btn btn-secondary btn-export-single-apk" data-pkg="${pkg.id}" title="${t('debloater.btn_export')}">
+              ${Icons.archive()}
+              <span>APK</span>
+            </button>
+          ` : ''}
+          <button class="btn btn-secondary btn-toggle-pkg" data-pkg="${pkg.id}" data-enable="${pkg.isDisabled}" ${isActionDisabled}>
+            ${actionText}
+          </button>
+        </div>
       </div>
     `;
   }).join('');
@@ -264,7 +297,7 @@ function renderDebloaterPackages() {
     btn.addEventListener('click', async (e) => {
       const pkgId = e.currentTarget.dataset.pkg;
       const shouldEnable = e.currentTarget.dataset.enable === 'true';
-      btn.textContent = 'Обработка...';
+      btn.textContent = '...';
       btn.disabled = true;
 
       const res = await window.electronAPI.setPackageState(state.currentDevice.serial, pkgId, shouldEnable);
@@ -272,6 +305,27 @@ function renderDebloaterPackages() {
         alert(res.error);
       }
       await loadDeviceDetails();
+    });
+  });
+
+  // Attach Single APK Export Listeners
+  container.querySelectorAll('.btn-export-single-apk').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const pkgId = e.currentTarget.dataset.pkg;
+      const destDir = await window.electronAPI.selectDirectory();
+      if (!destDir) return;
+
+      btn.disabled = true;
+      try {
+        const res = await window.electronAPI.exportApk(state.currentDevice.serial, pkgId, destDir);
+        if (res.success) {
+          alert(`APK успешно сохранен:\n${res.filePath}`);
+        } else {
+          alert(`Ошибка выгрузки APK: ${res.error}`);
+        }
+      } finally {
+        btn.disabled = false;
+      }
     });
   });
 }
@@ -303,7 +357,7 @@ async function loadAppsCatalog() {
           </div>
           <button class="btn btn-secondary btn-install-app" data-id="${app.id}" style="width: 100%; justify-content: center;">
             <span id="btn-icon-${app.id}">${Icons.download()}</span>
-            <span id="btn-text-${app.id}">Установить на проектор</span>
+            <span id="btn-text-${app.id}">${t('apps.install')}</span>
           </button>
         </div>
       </div>
@@ -325,21 +379,21 @@ async function loadAppsCatalog() {
       const progContainer = document.getElementById(`progress-container-${appId}`);
 
       progContainer.style.display = 'block';
-      textEl.textContent = 'Скачивание APK...';
+      textEl.textContent = t('apps.downloading', { percent: 0 });
 
       const res = await window.electronAPI.installApp(state.currentDevice.serial, appId);
       btnEl.disabled = false;
       progContainer.style.display = 'none';
 
       if (res.success) {
-        textEl.textContent = 'Успешно установлено!';
+        textEl.textContent = t('apps.installed');
         btnEl.className = 'btn btn-primary';
         setTimeout(() => {
-          textEl.textContent = 'Установить заново';
+          textEl.textContent = t('apps.install');
           btnEl.className = 'btn btn-secondary';
         }, 4000);
       } else {
-        textEl.textContent = 'Ошибка установки';
+        textEl.textContent = 'Ошибка';
         alert(`Не удалось установить: ${res.error || res.output}`);
       }
     });
@@ -354,7 +408,6 @@ async function captureProjectorScreen() {
   const placeholder = document.getElementById('screen-placeholder');
 
   if (res && res.success && res.base64) {
-    // Release previous image object to help V8 Garbage Collection
     img.removeAttribute('src');
     img.src = res.base64;
     img.style.display = 'block';
@@ -362,6 +415,47 @@ async function captureProjectorScreen() {
   } else {
     console.warn('Capture failed or incomplete frame:', res?.error);
   }
+}
+
+// Generate Markdown Optimization Report
+function generateMarkdownReport() {
+  const dev = state.deviceInfo || {};
+  const mem = state.memoryStats || {};
+  const storage = state.storageStats || {};
+  const density = state.displayDensity || {};
+  const dateStr = new Date().toLocaleString();
+  const disabledPkgs = (state.packages || []).filter(p => p.isDisabled);
+
+  return `# Android Projector Optimizer — Отчет об оптимизации
+
+**Дата формирования:** ${dateStr}
+**Модель устройства:** ${dev.model || 'Unknown'}
+**Бренд / Производитель:** ${dev.brand || ''} / ${dev.manufacturer || ''}
+**Версия Android:** ${dev.androidVersion || 'N/A'} (API SDK ${dev.sdk || 'N/A'})
+**Чипсет (SoC):** ${(dev.soc || '').toUpperCase()}
+**Разрешение экрана:** ${dev.displaySize || '1920x1080'}
+**Плотность экрана (DPI):** ${density.current || 280} DPI ${density.isCustom ? `(Заводское: ${density.physical})` : ''}
+
+---
+
+## 1. Состояние памяти и накопителя
+* **ОЗУ:** Всего ${mem.totalMB || 0} MB, Свободно ${mem.availableMB || 0} MB (Используется: ${mem.usagePercent || 0}%, Кэш: ${mem.cachedMB || 0} MB)
+* **Накопитель (/data):** Свободно ${storage.available || '--'} из ${storage.total || '--'} (Занято: ${storage.usePercent || '--'})
+
+---
+
+## 2. Результаты очистки и ускорения (Debloat & Boost)
+* **Всего обнаружено пакетов:** ${(state.packages || []).length}
+* **Отключено рекламных и системных пакетов:** ${disabledPkgs.length}
+${disabledPkgs.length > 0 ? disabledPkgs.map(p => `  - [x] \`${p.id}\` — ${p.name || 'Служба'}`).join('\n') : '  - Отключенных пакетов нет'}
+
+## 3. Примененные твики
+* Ускорение системных анимаций до 0.5x
+* Dexopt AOT Speed-компиляция медиа-плееров
+* Очистка журналов крашей и глубокий тримминг кэша
+
+*Создано утилитой Android Projector Optimizer (https://github.com/asakue/android-projector-optimizer)*
+`;
 }
 
 // Navigation & Tab Switching
@@ -382,14 +476,7 @@ function setupNavigation() {
       const activeView = document.getElementById(`view-${viewName}`);
       if (activeView) activeView.classList.add('active');
 
-      const titles = {
-        dashboard: 'Дашборд и телеметрия оборудования',
-        debloater: 'Безопасное отключение китайского мусора и рекламы',
-        turbo: 'Турбо-ускорение и тонкий тюнинг',
-        apps: 'Каталог легковесных TV-приложений',
-        remote: 'Виртуальный пульт и экран проектора'
-      };
-      topbarText.textContent = titles[viewName] || 'Android Projector Optimizer';
+      topbarText.textContent = t(`topbar.${viewName}`);
 
       if (viewName === 'remote') {
         captureProjectorScreen();
@@ -400,6 +487,16 @@ function setupNavigation() {
 
 // Event Listeners Setup
 function setupEvents() {
+  // Language Toggle
+  document.getElementById('btn-toggle-lang').addEventListener('click', () => {
+    const nextLang = getLang() === 'ru' ? 'en' : 'ru';
+    setLang(nextLang);
+    document.getElementById('lang-indicator').textContent = nextLang.toUpperCase();
+    document.getElementById('topbar-text').textContent = t(`topbar.${state.currentTab}`);
+    renderDebloaterPackages();
+    loadAppsCatalog();
+  });
+
   document.getElementById('btn-refresh-devices').addEventListener('click', refreshDevices);
 
   document.getElementById('debloat-search').addEventListener('input', (e) => {
@@ -420,7 +517,7 @@ function setupEvents() {
   document.getElementById('btn-debloat-selected').addEventListener('click', async () => {
     if (!state.currentDevice || state.currentDevice.state !== 'device') return;
     const btn = document.getElementById('btn-debloat-selected');
-    btn.textContent = 'Очистка...';
+    btn.textContent = '...';
     btn.disabled = true;
 
     state.isOptimizing = true;
@@ -435,7 +532,7 @@ function setupEvents() {
       alert('Рекомендованные рекламные и мусорные приложения успешно заморожены!');
     } finally {
       state.isOptimizing = false;
-      btn.textContent = 'Заморозить мусор';
+      btn.textContent = t('debloater.btn_freeze_trash');
       btn.disabled = false;
     }
   });
@@ -443,7 +540,7 @@ function setupEvents() {
   // Restore All Packages
   document.getElementById('btn-restore-all').addEventListener('click', async () => {
     if (!state.currentDevice || state.currentDevice.state !== 'device') return;
-    if (!confirm('Вы уверены, что хотите восстановить все ранее отключенные системные приложения?')) return;
+    if (!confirm('Восстановить все ранее отключенные системные приложения?')) return;
 
     state.isOptimizing = true;
     try {
@@ -455,6 +552,37 @@ function setupEvents() {
     }
   });
 
+  // Batch Backup User APKs
+  document.getElementById('btn-backup-all-apks').addEventListener('click', async () => {
+    if (!state.currentDevice || state.currentDevice.state !== 'device') {
+      alert('Подключите проектор для выгрузки бэкапа!');
+      return;
+    }
+
+    const thirdPartyPkgs = (state.packages || []).filter(p => p.isThirdParty).map(p => p.id);
+    if (thirdPartyPkgs.length === 0) {
+      alert('Пользовательских приложений для бэкапа не найдено.');
+      return;
+    }
+
+    const destDir = await window.electronAPI.selectDirectory();
+    if (!destDir) return;
+
+    const btn = document.getElementById('btn-backup-all-apks');
+    btn.disabled = true;
+    btn.querySelector('span:last-child').textContent = 'Бэкап...';
+
+    try {
+      const res = await window.electronAPI.batchExportApks(state.currentDevice.serial, thirdPartyPkgs, destDir);
+      alert(`Бэкап завершен!\nЭкспортировано: ${res.exportedCount} из ${thirdPartyPkgs.length} APK файлов в:\n${destDir}`);
+    } catch (err) {
+      alert(`Ошибка бэкапа: ${err.message}`);
+    } finally {
+      btn.disabled = false;
+      btn.querySelector('span:last-child').textContent = t('debloater.btn_backup_apks');
+    }
+  });
+
   // 1-Click Hero Quick Boost
   document.getElementById('btn-hero-quick-boost').addEventListener('click', async () => {
     if (!state.currentDevice || state.currentDevice.state !== 'device') {
@@ -463,7 +591,7 @@ function setupEvents() {
     }
 
     const btn = document.getElementById('btn-hero-quick-boost');
-    btn.textContent = 'Оптимизация...';
+    btn.textContent = '...';
     btn.disabled = true;
     state.isOptimizing = true;
 
@@ -476,7 +604,8 @@ function setupEvents() {
         compileSpeed: true
       });
 
-      document.getElementById('results-ram-freed').textContent = `Освобождено памяти: ~${res.memFreedMB || 180} MB ОЗУ`;
+      state.lastOptimizationResult = res;
+      document.getElementById('results-ram-freed').textContent = t('results.freed', { freed: `~${res.memFreedMB || 180} MB ОЗУ` });
       const listEl = document.getElementById('results-steps-list');
       listEl.innerHTML = res.steps.map(step => `<div>✓ ${step}</div>`).join('');
       document.getElementById('results-modal').classList.add('active');
@@ -484,8 +613,71 @@ function setupEvents() {
       await loadDeviceDetails();
     } finally {
       state.isOptimizing = false;
-      btn.textContent = 'Турбо-оптимизация';
+      btn.textContent = t('hero.btn_boost');
       btn.disabled = false;
+    }
+  });
+
+  // Export Report from Dashboard & Modal
+  const handleExportReport = async () => {
+    if (!state.currentDevice) {
+      alert('Подключите проектор для генерации отчета!');
+      return;
+    }
+    const reportContent = generateMarkdownReport();
+    const defaultName = `Projector_Report_${(state.deviceInfo?.model || 'Optimizer').replace(/\s+/g, '_')}.md`;
+    const res = await window.electronAPI.saveReport(reportContent, defaultName);
+    if (res.success) {
+      alert(`Отчет успешно сохранен:\n${res.filePath}`);
+    }
+  };
+
+  document.getElementById('btn-dashboard-report').addEventListener('click', handleExportReport);
+  document.getElementById('btn-save-report-modal').addEventListener('click', handleExportReport);
+
+  // Quick Hardware Settings Intents
+  document.getElementById('btn-open-bluetooth').addEventListener('click', async () => {
+    if (!state.currentDevice) return;
+    await window.electronAPI.openBluetoothSettings(state.currentDevice.serial);
+  });
+  document.getElementById('btn-open-sound').addEventListener('click', async () => {
+    if (!state.currentDevice) return;
+    await window.electronAPI.openSoundSettings(state.currentDevice.serial);
+  });
+  document.getElementById('btn-open-display').addEventListener('click', async () => {
+    if (!state.currentDevice) return;
+    await window.electronAPI.openDisplaySettings(state.currentDevice.serial);
+  });
+
+  // Display Density (DPI) Preset Buttons
+  document.querySelectorAll('.density-preset-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      if (!state.currentDevice || state.currentDevice.state !== 'device') return;
+      const density = e.currentTarget.dataset.density;
+      const res = await window.electronAPI.setDisplayDensity(state.currentDevice.serial, density);
+      if (res.success) {
+        alert(res.message);
+        await loadDeviceDetails();
+      } else {
+        alert(`Ошибка установки DPI: ${res.error}`);
+      }
+    });
+  });
+
+  // Custom Density Apply
+  document.getElementById('btn-apply-custom-density').addEventListener('click', async () => {
+    if (!state.currentDevice || state.currentDevice.state !== 'device') return;
+    const val = parseInt(document.getElementById('custom-density-input').value.trim(), 10);
+    if (isNaN(val) || val < 120 || val > 640) {
+      alert('Введите корректное число DPI от 120 до 640!');
+      return;
+    }
+    const res = await window.electronAPI.setDisplayDensity(state.currentDevice.serial, val);
+    if (res.success) {
+      alert(res.message);
+      await loadDeviceDetails();
+    } else {
+      alert(`Ошибка: ${res.error}`);
     }
   });
 
@@ -503,7 +695,7 @@ function setupEvents() {
   document.getElementById('btn-compile-apps').addEventListener('click', async () => {
     if (!state.currentDevice || state.currentDevice.state !== 'device') return;
     const btn = document.getElementById('btn-compile-apps');
-    btn.textContent = 'Компиляция (это займет 20-40 сек)...';
+    btn.textContent = 'Компиляция...';
     btn.disabled = true;
 
     try {
@@ -511,9 +703,9 @@ function setupEvents() {
       for (const app of criticalApps) {
         await window.electronAPI.compileSpeed(state.currentDevice.serial, app);
       }
-      alert('Компиляция завершена! Теперь приложения будут запускаться мгновенно без подтормаживаний.');
+      alert('Компиляция завершена! Приложения скомпилированы в нативный код.');
     } finally {
-      btn.textContent = 'Скомпилировать плееры и лаунчер';
+      btn.textContent = t('turbo.btn_dex');
       btn.disabled = false;
     }
   });
@@ -557,7 +749,7 @@ function setupEvents() {
   document.getElementById('btn-remote-voldn').addEventListener('click', () => sendKey(25));
   document.getElementById('btn-remote-power').addEventListener('click', () => sendKey(26));
 
-  // Send Text (with Cyrillic / UTF-8 support)
+  // Send Text
   const sendTextAction = async () => {
     const input = document.getElementById('remote-text-input');
     const text = input.value.trim();
@@ -573,7 +765,7 @@ function setupEvents() {
     if (e.key === 'Enter') sendTextAction();
   });
 
-  // Wi-Fi Modal Handlers
+  // Wi-Fi Modal & Auto-Discovery Handlers
   document.getElementById('btn-open-wifi-modal').addEventListener('click', () => {
     document.getElementById('wifi-modal').classList.add('active');
   });
@@ -582,6 +774,60 @@ function setupEvents() {
   });
   document.getElementById('btn-cancel-wifi').addEventListener('click', () => {
     document.getElementById('wifi-modal').classList.remove('active');
+  });
+
+  // Auto-Discovery Scanner
+  const scanBtn = document.getElementById('btn-scan-network');
+  const scanProgBox = document.getElementById('scan-progress-box');
+  const scanBar = document.getElementById('scan-progress-bar');
+  const scanText = document.getElementById('scan-progress-text');
+  const scanResults = document.getElementById('scan-results-box');
+
+  scanBtn.addEventListener('click', async () => {
+    scanBtn.disabled = true;
+    scanProgBox.style.display = 'block';
+    scanResults.style.display = 'none';
+    scanResults.innerHTML = '';
+    scanBar.style.width = '0%';
+    scanText.textContent = t('modal.wifi_scanning', { percent: 0 });
+
+    const removeListener = window.electronAPI.onScanProgress(({ percent, currentIp, found }) => {
+      scanBar.style.width = `${percent}%`;
+      scanText.textContent = t('modal.wifi_scanning', { percent }) + (currentIp ? ` (${currentIp})` : '');
+    });
+
+    try {
+      const found = await window.electronAPI.scanNetwork();
+      scanProgBox.style.display = 'none';
+      scanResults.style.display = 'block';
+
+      if (!found || found.length === 0) {
+        scanResults.innerHTML = `<div style="font-size: 11px; color: var(--text-muted); padding: 8px;">${t('modal.wifi_no_found')}</div>`;
+      } else {
+        scanResults.innerHTML = `
+          <div style="font-size: 11px; font-weight: 600; margin-bottom: 6px; color: var(--text-secondary);">${t('modal.wifi_found_devices')}</div>
+          ${found.map(dev => `
+            <div class="scan-candidate-item" data-ip="${dev.ip}" data-port="${dev.port}">
+              <span class="scan-candidate-ip">${dev.ip}:${dev.port}</span>
+              <button class="btn btn-secondary btn-connect-candidate" style="padding: 3px 8px; font-size: 11px;">Подключить</button>
+            </div>
+          `).join('')}
+        `;
+
+        scanResults.querySelectorAll('.scan-candidate-item').forEach(item => {
+          item.addEventListener('click', (e) => {
+            const ip = e.currentTarget.dataset.ip;
+            const port = e.currentTarget.dataset.port;
+            document.getElementById('wifi-ip-input').value = ip;
+            document.getElementById('wifi-port-input').value = port;
+            document.getElementById('btn-confirm-wifi').click();
+          });
+        });
+      }
+    } finally {
+      if (removeListener) removeListener();
+      scanBtn.disabled = false;
+    }
   });
 
   document.getElementById('btn-confirm-wifi').addEventListener('click', async () => {
@@ -593,7 +839,7 @@ function setupEvents() {
     }
 
     const btn = document.getElementById('btn-confirm-wifi');
-    btn.textContent = 'Подключение...';
+    btn.textContent = '...';
     btn.disabled = true;
 
     try {
@@ -605,7 +851,7 @@ function setupEvents() {
         alert(`Ошибка подключения: ${res.message || 'Проверьте IP и включенную отладку на проекторе'}`);
       }
     } finally {
-      btn.textContent = 'Подключить';
+      btn.textContent = t('modal.wifi_connect');
       btn.disabled = false;
     }
   });
@@ -616,7 +862,7 @@ function setupEvents() {
       return;
     }
     const btn = document.getElementById('btn-activate-tcpip');
-    btn.textContent = 'Активация режима TCP/IP...';
+    btn.textContent = '...';
     btn.disabled = true;
 
     try {
@@ -625,7 +871,7 @@ function setupEvents() {
     } catch (err) {
       alert(`Ошибка: ${err.message}`);
     } finally {
-      btn.textContent = 'Активировать режим Wi-Fi (adb tcpip 5555)';
+      btn.textContent = t('modal.wifi_activate_tcpip');
       btn.disabled = false;
     }
   });
@@ -644,8 +890,8 @@ function setupEvents() {
     const text = document.getElementById(`btn-text-${appId}`);
     if (fill) fill.style.width = `${percent}%`;
     if (text) {
-      if (status === 'downloading') text.textContent = `Скачивание: ${percent}%`;
-      if (status === 'installing') text.textContent = 'Установка на проектор...';
+      if (status === 'downloading') text.textContent = t('apps.downloading', { percent });
+      if (status === 'installing') text.textContent = t('apps.installing');
     }
   });
 
@@ -665,9 +911,12 @@ function setupEvents() {
 
 // Master Initialization
 async function init() {
+  initLanguage();
   initIcons();
   setupNavigation();
   setupEvents();
+  applyTranslations();
+  document.getElementById('lang-indicator').textContent = getLang().toUpperCase();
   await loadAppsCatalog();
   await refreshDevices();
   startAdaptivePolling();
